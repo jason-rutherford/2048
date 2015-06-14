@@ -1,3 +1,9 @@
+# 2048 Deep Q-Network
+This is an implementation of DeepMind's deep learning algorithm applied to the
+game 2048.
+
+_______________________________________________________________________________
+
 # 2048
 A small clone of [1024](https://play.google.com/store/apps/details?id=com.veewo.a1024), based on [Saming's 2048](http://saming.fr/p/2048/) (also a clone).
 
