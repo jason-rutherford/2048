@@ -2,6 +2,8 @@
 This is an implementation of DeepMind's deep learning algorithm applied to the
 game 2048.
 
+**[Watch it play](https://levithomason.github.io/2048)**
+
 _______________________________________________________________________________
 
 # 2048
