@@ -1,4 +1,29 @@
 /**
+ * Wrapper around the game grid
+ * @param grid
+ * @constructor
+ */
+var gridUtil = {
+  countEmptyTiles: function(grid) {
+    var emptyTiles = _.filter(this.readTileValues(grid), function(tile) {
+      return tile === 0;
+    });
+    return emptyTiles.length;
+  },
+  readTileValues: function(grid) {
+    // flatten the two dimensional grid into a single dimensional array
+    // replace null values with a 0
+    return _.map(_.flatten(grid.cells), function(tile) {
+      return !!tile ? tile.value : 0
+    });
+  },
+  largestTileValue: function(grid) {
+    return _.max(this.readTileValues(grid));
+  }
+};
+
+
+/**
  * Manage the AI stats panel.
  * @constructor
  */
@@ -8,15 +33,20 @@ function Stats() {
   this.lastRewardEle = $('.ai-stats .reward .data');
   this.avgRewardEle = $('.ai-stats .avg-reward .data');
 
+  this.gameMovesEle = $('.ai-stats .games .total-moves .data');
+  this.gameLargestTileEle = $('.ai-stats .games .largest-tile .data');
+  this.gameTileScoreEle = $('.ai-stats .games .total-tile-score .data');
+  this.gameScoreEle = $('.ai-stats .games .final-score .data');
+
   this.init();
 }
-
 Stats.prototype.init = function() {
   this.action = '';
   this.avgReward = 0;
   this.lastReward = 0;
   this.totalMoves = 0;
   this.totalRewards = 0;
+  this.lastGame = {};
 };
 Stats.prototype.recordAction = function(actionName, reward) {
   this.action = actionName;
@@ -24,12 +54,29 @@ Stats.prototype.recordAction = function(actionName, reward) {
   this.totalRewards += reward;
   this.totalMoves += 1;
   this.updateAverage();
-  this.updateReadout();
+  this.logAction();
+};
+Stats.prototype.recordGame = function(game) {
+  console.log(game);
+  
+  this.lastGame = {
+    totalMoves: this.totalMoves,
+    largestTile: _.max(gridUtil.largestTileValue(game.grid)),
+    tileScore: _.sum(gridUtil.readTileValues(game.grid)),
+    score: game.score
+  };
+  this.logGame();
+};
+Stats.prototype.logGame = function() {
+  this.gameMovesEle.prepend('<div>' + this.lastGame.totalMoves + '</div>');
+  this.gameLargestTileEle.prepend('<div>' + this.lastGame.largestTile + '</div>');
+  this.gameTileScoreEle.prepend('<div>' + this.lastGame.tileScore + '</div>');
+  this.gameScoreEle.prepend('<div>' + this.lastGame.score + '</div>');
 };
 Stats.prototype.updateAverage = function() {
   this.avgReward = (this.totalRewards / this.totalMoves).toFixed(2);
 };
-Stats.prototype.updateReadout = function() {
+Stats.prototype.logAction = function() {
   this.actionEle.prepend('<div>' + this.action + '</div>');
   this.lastMoveEle.prepend('<div>' + this.totalMoves + '</div>');
   this.lastRewardEle.prepend('<div>' + this.lastReward + '</div>');
@@ -166,63 +213,63 @@ Agent.prototype.setPlaySpeed = function(ms) {
   this.playSpeed = ms;
   this.start();
 };
-Agent.prototype.countEmptyTiles = function() {
-  return _.filter(this.readTileValues(), function(tile) {
-    return tile !== 0;
-  }).length;
-};
-Agent.prototype.readTileValues = function() {
-  // flatten the two dimensional grid into a single dimensional array
-  // replace null values with a 0
-  return _.map(_.flatten(this.game.grid.cells), function(tile) {
-    return !!tile ? tile.value : 0
-  });
-};
 Agent.prototype.takeAction = function() {
   var actionName;
   var action;
-  var preActionScore;
-  var postActionScore;
-  var preActionTileCount;
-  var postActionTileCount;
+  var preAction = {
+    score: this.game.score,
+    tileValues: gridUtil.readTileValues(this.game.grid)
+  };
   var reward;
-  var tileValues = this.readTileValues();
 
   // if game is over, play again
   if (this.game.isGameTerminated()) {
     this.game.restart();
+    this.stats.recordGame(this.game);
     this.stats.reset();
   }
 
-  // capture score, prior to taking `action`
-  preActionScore = this.game.score;
-  preActionTileCount = tileValues.length;
-
+  // MAKE DECISION
   // action is a number in [0, num_actions] indicating the index of the 
   //   action the agent chooses.
   // inputs to the brain are the tile values
-  action = this.brain.forward(tileValues);
-  actionName = this.actionMap[action];
+  action = this.brain.forward(preAction.tileValues);
 
+  // EXECUTE DECISION
   // apply the action on the environment and observe some reward.
   // see KeyboardInputManager keydown event listener
   // 0 up, 1 right, 2 down, 3 left
   this.game.inputManager.emit('move', action);
+  var postAction = {
+    score: this.game.score,
+    tileValues: gridUtil.readTileValues(this.game.grid)
+  };
 
-  // Finally, communicate the observed reward to brain.backward():
-  // simple reward, score increase
-  postActionScore = this.game.score;
-  postActionTileCount = this.countEmptyTiles();
-
-  // the best we can do is maintain tile count
-  // -1 = no merged tiles 
-  // 0 = merged one tile
-  // 1 = merged two tiles
-  // etc.
-  reward = -1 + (preActionTileCount - postActionTileCount);
+  // LEARN FROM IT
+  // observe effects and learn
+  reward = this.calculateReward(preAction, postAction);
   this.brain.backward(reward);
 
-
   // update the stats
+  actionName = this.actionMap[action];
   this.stats.recordAction(actionName, reward);
+};
+Agent.prototype.calculateReward = function(preAction, postAction) {
+  var prevTileCount = _.compact(preAction.tileValues).length;
+  var curTileCount = _.compact(postAction.tileValues).length;
+  var didMergeTiles = curTileCount <= prevTileCount;
+  var didMoveTiles = !_.isEqual(preAction.tileValues, postAction.tileValues);
+  var reward;
+
+  if (didMergeTiles) {
+    reward = 1;
+  } else {
+    reward = -1;
+  }
+
+  if (!didMoveTiles) {
+    reward = -5;
+  }
+
+  return reward;
 };

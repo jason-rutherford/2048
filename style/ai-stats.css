@@ -7,6 +7,11 @@
   text-align: center;
   font-size: 12px;
   width: 250px;
+  overflow-y: scroll;
+  max-height: 500px;
+}
+.ai-stats .description {
+  text-align: left;
 }
 .ai-stats .data {
   line-height: 1;
@@ -14,6 +19,13 @@
 .ai-stats .data div + div {
   border-top: 1px solid #EEE;
   color: #CCC;
+}
+.ai-stats .total-moves,
+.ai-stats .largest-tile,
+.ai-stats .total-tile-score,
+.ai-stats .final-score {
+  width: 25%;
+  float: left;
 }
 .ai-stats .move,
 .ai-stats .action,
