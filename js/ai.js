@@ -166,13 +166,27 @@ Agent.prototype.setPlaySpeed = function(ms) {
   this.playSpeed = ms;
   this.start();
 };
+Agent.prototype.countEmptyTiles = function() {
+  return _.filter(this.readTileValues(), function(tile) {
+    return tile !== 0;
+  }).length;
+};
+Agent.prototype.readTileValues = function() {
+  // flatten the two dimensional grid into a single dimensional array
+  // replace null values with a 0
+  return _.map(_.flatten(this.game.grid.cells), function(tile) {
+    return !!tile ? tile.value : 0
+  });
+};
 Agent.prototype.takeAction = function() {
   var actionName;
   var action;
-  var inputArrayValues;
-  var postActionScore;
   var preActionScore;
+  var postActionScore;
+  var preActionTileCount;
+  var postActionTileCount;
   var reward;
+  var tileValues = this.readTileValues();
 
   // if game is over, play again
   if (this.game.isGameTerminated()) {
@@ -182,17 +196,12 @@ Agent.prototype.takeAction = function() {
 
   // capture score, prior to taking `action`
   preActionScore = this.game.score;
-
-  // inputs to the brain are the tile values
-  // flatten the two dimensional grid into a single dimensional array
-  // replace null values with a 0
-  inputArrayValues = _.map(_.flatten(this.game.grid.cells), function(tile) {
-    return !!tile ? tile.value : 0
-  });
+  preActionTileCount = tileValues.length;
 
   // action is a number in [0, num_actions] indicating the index of the 
   //   action the agent chooses.
-  action = this.brain.forward(inputArrayValues);
+  // inputs to the brain are the tile values
+  action = this.brain.forward(tileValues);
   actionName = this.actionMap[action];
 
   // apply the action on the environment and observe some reward.
@@ -203,8 +212,16 @@ Agent.prototype.takeAction = function() {
   // Finally, communicate the observed reward to brain.backward():
   // simple reward, score increase
   postActionScore = this.game.score;
-  reward = postActionScore - preActionScore;
+  postActionTileCount = this.countEmptyTiles();
+
+  // the best we can do is maintain tile count
+  // -1 = no merged tiles 
+  // 0 = merged one tile
+  // 1 = merged two tiles
+  // etc.
+  reward = -1 + (preActionTileCount - postActionTileCount);
   this.brain.backward(reward);
+
 
   // update the stats
   this.stats.recordAction(actionName, reward);
