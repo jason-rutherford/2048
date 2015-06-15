@@ -1,0 +1,24 @@
+.ai-stats {
+  position: fixed;
+  left: 0;
+  top: 0;
+  color: #555;
+  overflow: hidden;
+  text-align: center;
+  font-size: 12px;
+  width: 250px;
+}
+.ai-stats .data {
+  line-height: 1;
+}
+.ai-stats .data div + div {
+  border-top: 1px solid #EEE;
+  color: #CCC;
+}
+.ai-stats .move,
+.ai-stats .action,
+.ai-stats .reward,
+.ai-stats .avg-reward {
+  float: left;
+  width: 25%;
+}

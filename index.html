@@ -5,6 +5,8 @@
   <title>2048</title>
 
   <link href="style/main.css" rel="stylesheet" type="text/css">
+  <link href="style/ai-stats.css" rel="stylesheet" type="text/css">
+  
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="meta/apple-touch-icon.png">
   <link rel="apple-touch-startup-image" href="meta/apple-touch-startup-image-640x1096.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)"> <!-- iPhone 5+ -->
@@ -17,6 +19,34 @@
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
 </head>
 <body>
+  <div class="ai-stats">
+    <p>
+    </p>
+    <p>
+      <button onclick="agent.pause()">&FilledSmallSquare;</button>
+      <button onclick="agent.reset()">&circlearrowright;</button>
+      <br/>
+      <button onclick="agent.setPlaySpeed(50)">Fast</button>
+      <button onclick="agent.setPlaySpeed(400)">Normal</button>
+      <button onclick="agent.setPlaySpeed(1000)">Slow</button>
+    </p>
+      <div class="move">
+        <b>Move</b>
+        <div class="data"></div>
+      </div>
+      <div class="action">
+        <b>Action</b>
+        <div class="data"></div>
+      </div>
+      <div class="reward">
+        <b>Reward</b>
+        <div class="data"></div>
+      </div>
+      <div class="avg-reward">
+        <b>Avg</b>
+        <div class="data"></div>
+      </div>
+  </div>
   <div class="container">
     <div class="heading">
       <h1 class="title">2048</h1>
@@ -85,10 +115,13 @@
     </p>
   </div>
 
+  <script src="bower_components/jquery/dist/jquery.js"></script>
+  <script src="bower_components/lodash/lodash.js"></script>
   <script src="node_modules/convnetjs/build/convnet.js"></script>
   <script src="node_modules/convnetjs/build/deepqlearn.js"></script>
   <script src="node_modules/convnetjs/build/util.js"></script>
-  <script src="js/brain/brain.js"></script>
+
+  <script src="js/ai.js"></script>
 
   <script src="js/bind_polyfill.js"></script>
   <script src="js/classlist_polyfill.js"></script>

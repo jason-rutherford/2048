@@ -1,0 +1,20 @@
+{
+  "name": "2048",
+  "version": "0.0.0",
+  "homepage": "https://github.com/levithomason/2048",
+  "authors": [
+    "levithomason <me@levithomason.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "lodash": "~3.9.3",
+    "jquery": "~2.1.4"
+  }
+}
