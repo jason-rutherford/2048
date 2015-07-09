@@ -268,6 +268,8 @@ Agent.prototype.takeAction = function() {
 
   // LEARN FROM IT
   // observe effects and learn
+  this.stats.learnings += 1;
+  this.stats.learnings10K += 1;
   reward = this.calculateReward(preAction, postAction);
   this.brain.backward(reward);
 
