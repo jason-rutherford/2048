@@ -164,13 +164,12 @@ function createBrain(numInputs) {
     epsilon_test_time: 0.05,              // don't make any random choices, ever
     experience_add_every: 5,              // number of time steps before we add another experience to replay memory
     experience_size: 10000,               // size of experience replay memory
-    gamma: 0.9,                           // discount factor, [0, 1)
+    gamma: 0.9,                           // gamma is a crucial parameter that controls how much plan-ahead the agent does. In [0,1]
     layer_defs: layer_defs,
     learning_steps_per_iteration: 20,
-    learning_steps_total: 200000,
-    learning_steps_burnin: 3000,
-    num_hidden_units: 10,                 // number of neurons in hidden layer
-    start_learn_threshold: 1000,
+    learning_steps_total: 500000,         // number of steps we will learn for
+    learning_steps_burnin: 50000,          // how many steps of the above to perform only random actions (in the beginning)?
+    start_learn_threshold: 1,
     tderror_clamp: 1.0,                   // for robustness
     temporal_window: temporal_window,
     tdtrainer_options: tdtrainer_options
