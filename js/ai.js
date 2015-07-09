@@ -33,11 +33,18 @@ function Stats() {
   this.lastRewardEle = $('.ai-stats .reward .data');
   this.avgRewardEle = $('.ai-stats .avg-reward .data');
 
+  this.brainEle = $('.brain');
   this.gameMovesEle = $('.ai-stats .games .total-moves .data');
   this.gameLargestTileEle = $('.ai-stats .games .largest-tile .data');
-  this.gameTileScoreEle = $('.ai-stats .games .total-tile-score .data');
+  this.gameWonEle = $('.ai-stats .games .won .data');
   this.gameScoreEle = $('.ai-stats .games .final-score .data');
-
+  this.learningsEle = $('.ai-stats .learnings .data');
+  this.learnings = 0;
+  this.learnings10K = 0;
+  this.learnings10KAvg = [];
+  this.gameCount = 0;
+  this.gameScores = [];
+  this.gameTotalScore = 0;
   this.init();
 }
 Stats.prototype.init = function() {
@@ -57,12 +64,24 @@ Stats.prototype.recordAction = function(actionName, reward) {
   this.logAction();
 };
 Stats.prototype.recordGame = function(game) {
-  console.log(game);
+  // console.log(game);
+  this.gameCount += 1;
   
+  this.gameTotalScore += game.score;
+  this.gameScores.push({year: this.gameCount, score: game.score, avg: (this.gameTotalScore/this.gameCount) });
+
+  if (this.learnings10K >= 10000) {
+    this.learnings10KAvg.push({year: this.gameCount, avg: (this.gameTotalScore/this.gameCount) });
+    drawLearningChart(this.learnings10KAvg);
+    this.learnings10K = 0;
+  }
+
+  
+  drawChart(this.gameScores);
   this.lastGame = {
     totalMoves: this.totalMoves,
-    largestTile: _.max(gridUtil.largestTileValue(game.grid)),
-    tileScore: _.sum(gridUtil.readTileValues(game.grid)),
+    largestTile: Math.max.apply(null, gridUtil.readTileValues(game.grid)),
+    won: game.won,
     score: game.score
   };
   this.logGame();
@@ -70,8 +89,9 @@ Stats.prototype.recordGame = function(game) {
 Stats.prototype.logGame = function() {
   this.gameMovesEle.prepend('<div>' + this.lastGame.totalMoves + '</div>');
   this.gameLargestTileEle.prepend('<div>' + this.lastGame.largestTile + '</div>');
-  this.gameTileScoreEle.prepend('<div>' + this.lastGame.tileScore + '</div>');
+  this.gameWonEle.prepend('<div>' + this.lastGame.won + '</div>');
   this.gameScoreEle.prepend('<div>' + this.lastGame.score + '</div>');
+  this.learningsEle.html('<div>' + this.learnings + '</div>');
 };
 Stats.prototype.updateAverage = function() {
   this.avgReward = (this.totalRewards / this.totalMoves).toFixed(2);
@@ -166,6 +186,7 @@ function createBrain(numInputs) {
  */
 function Agent(game) {
   this.game = game;
+  this.gameScores = [];
   this.stats = new Stats();
   this.playSpeed = 200;
   this.actionMap = {
@@ -224,9 +245,9 @@ Agent.prototype.takeAction = function() {
 
   // if game is over, play again
   if (this.game.isGameTerminated()) {
-    this.game.restart();
     this.stats.recordGame(this.game);
     this.stats.reset();
+    this.game.restart();
   }
 
   // MAKE DECISION
@@ -273,3 +294,42 @@ Agent.prototype.calculateReward = function(preAction, postAction) {
 
   return reward;
 };
+
+function drawChart(data) {
+  if (data.length >= 200) {
+    data = data.slice(-200,-1);
+  }
+  scoreChart.setData(data);
+}
+function drawLearningChart(data) {
+  learnChart.setData(data);
+}
+
+var scoreChart = new Morris.Line({
+    // ID of the element in which to draw the chart.
+    element: 'myfirstchart',
+    // Chart data records -- each entry in this array corresponds to a point on
+    // the chart.
+    data: [],
+    // The name of the data record attribute that contains x-values.
+    xkey: 'year',
+    // A list of names of data record attributes that contain y-values.
+    ykeys: ['score','avg'],
+    // Labels for the ykeys -- will be displayed when you hover over the
+    // chart.
+    labels: ['score', 'avg']
+  });
+var learnChart = new Morris.Line({
+    // ID of the element in which to draw the chart.
+    element: 'learnChart',
+    // Chart data records -- each entry in this array corresponds to a point on
+    // the chart.
+    data: [],
+    // The name of the data record attribute that contains x-values.
+    xkey: 'year',
+    // A list of names of data record attributes that contain y-values.
+    ykeys: ['avg'],
+    // Labels for the ykeys -- will be displayed when you hover over the
+    // chart.
+    labels: ['10K Avg']
+  });

@@ -1,14 +1,10 @@
 .ai-stats {
-  position: fixed;
-  left: 0;
-  top: 0;
   color: #555;
   overflow: hidden;
   text-align: center;
   font-size: 12px;
-  width: 250px;
   overflow-y: scroll;
-  max-height: 500px;
+  max-height: 100%;
 }
 .ai-stats .description {
   text-align: left;
@@ -22,7 +18,7 @@
 }
 .ai-stats .total-moves,
 .ai-stats .largest-tile,
-.ai-stats .total-tile-score,
+.ai-stats .won,
 .ai-stats .final-score {
   width: 25%;
   float: left;

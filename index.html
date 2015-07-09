@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>2048</title>
 
+    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="style/main.css" rel="stylesheet" type="text/css">
     <link href="style/ai-stats.css" rel="stylesheet" type="text/css">
 
@@ -19,8 +20,15 @@
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
     <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
 </head>
 <body>
+<div class="row">
+    <div class="col-sm-2 pull-left">
 <div class="ai-stats">
     <div class="description">
         <p>
@@ -33,55 +41,45 @@
         </ul>
     </div>
     <p>
-        <button onclick="agent.setPlaySpeed(50)">Fast</button>
+                <button onclick="agent.setPlaySpeed(15)">Fast</button>
         <button onclick="agent.setPlaySpeed(400)">Normal</button>
         <button onclick="agent.setPlaySpeed(1000)">Slow</button>
         <button onclick="agent.pause()">&FilledSmallSquare;</button>
         <button onclick="agent.reset()">&circlearrowright;</button>
     </p>
+            <div class="learnings">
+                <b>Learnings</b>
+                <div class="data"></div>
+            </div>
     <div class="games">
-        GAMES
+                <p>GAMES</p>
         <div class="total-moves">
-            Moves
+                    <b>Moves</b>
             <div class="data"></div>
         </div>
         <div class="largest-tile">
-            >Tile
+                    <b>Max Tile</b>
             <div class="data"></div>
         </div>
-        <div class="total-tile-score">
-            Tile Total
+                <div class="won">
+                    <b>Won</b>
             <div class="data"></div>
         </div>
         <div class="final-score">
-            Score
+                    <b>Score</b>
             <div class="data"></div>
         </div>
     </div>
     <br/>
+            <br/>
+            <br/>
 
-    <div class="move">
-        <b>Move</b>
-
-        <div class="data"></div>
     </div>
-    <div class="action">
-        <b>Action</b>
-
-        <div class="data"></div>
     </div>
-    <div class="reward">
-        <b>Reward</b>
 
-        <div class="data"></div>
-    </div>
-    <div class="avg-reward">
-        <b>Avg</b>
-
-        <div class="data"></div>
-    </div>
-</div>
+    <div class="col-sm-8">
 <div class="container">
+            <div class='brain'></div>
     <div class="heading">
         <h1 class="title">2048</h1>
 
@@ -138,28 +136,44 @@
 
         </div>
     </div>
+        </div>
+        <div>
+            <h2>Last 200 Games</h2>
+            <div id="myfirstchart" style="height: 300px;"></div>
+            <h2>All 10K Learnings</h2>
+            <div id="learnChart" style="height: 250px;"></div>
+        </div>
+    </div>
+     <div class="col-sm-2 pull-right">
+        <div class="ai-stats">
+            <p>ACTIONS</p>
+            <div class="move">
+                <b>Moves</b>
+                <div class="data"></div>
+            </div>
+            <div class="action">
+                <b>Action</b>
 
-    <p class="game-explanation">
-        <strong class="important">How to play:</strong> Use your
-        <strong>arrow keys</strong> to move the tiles. When two tiles with the same number touch, they
-        <strong>merge into one!</strong>
-    </p>
-    <hr>
-    <p>
-        <strong class="important">Note:</strong> This site is the official version of 2048. You can play it on your phone via
-        <a href="http://git.io/2048">http://git.io/2048.</a> All other apps or sites are derivatives or fakes, and should be used with caution.
-    </p>
-    <hr>
-    <p>
-        Created by
-        <a href="http://gabrielecirulli.com" target="_blank">Gabriele Cirulli.</a> Based on
-        <a href="https://itunes.apple.com/us/app/1024!/id823499224" target="_blank">1024 by Veewo Studio</a> and conceptually similar to
-        <a href="http://asherv.com/threes/" target="_blank">Threes by Asher Vollmer.</a>
-    </p>
+                <div class="data"></div>
+            </div>
+            <div class="reward">
+                <b>Reward</b>
+
+                <div class="data"></div>
+            </div>
+            <div class="avg-reward">
+                <b>Avg</b>
+
+                <div class="data"></div>
+            </div>
+        </div>
 </div>
 
+
+</div>
 <script src="bower_components/jquery/dist/jquery.js"></script>
 <script src="bower_components/lodash/lodash.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="node_modules/convnetjs/build/convnet.js"></script>
 <script src="node_modules/convnetjs/build/deepqlearn.js"></script>
 <script src="node_modules/convnetjs/build/util.js"></script>
